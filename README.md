@@ -56,4 +56,4 @@ Find me on:
 [article]: http://soren.cloud/o365-secure-score-azure-automation-part-2-external-forwarding-report/
 [my blog]: http://soren.cloud/
 [soren.cloud]: http://soren.cloud/
-[prerequisites]: http://soren.cloud/o365-secure-score-azure-automation-part-2-external-forwarding-report/#CreateExchangeOnlineServiceAccount
+[prerequisites]: http://soren.cloud/o365-secure-score-azure-automation-part-2-external-forwarding-report/#Prerequisites
