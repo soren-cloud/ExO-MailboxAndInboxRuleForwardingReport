@@ -380,8 +380,8 @@ Function Get-InboxRuleForwardingToExternal
 $ReportSmtpServer = "smtp.office365.com"
 $ReportSmtpPort = 587
 $ReportSmtpPSCredentialName = $AutomationPSCredentialName
-$ReportSmtpFrom = "svc-azauto-exo@soren.cloud"
-$ReportSmtpTo = "soren@lindevang.it"
+$ReportSmtpFrom = "serviceaccount@domain.com"
+$ReportSmtpTo = "name@domain.com"
 
 # SendInboxRuleForwardingReport Variables
 $SendInboxRuleForwardingReportSubject = "Report: Inbox Rules with Forwarding to External Recipients"
