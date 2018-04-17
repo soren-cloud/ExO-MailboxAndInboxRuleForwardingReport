@@ -73,7 +73,7 @@
 .NOTES
     Version:        1.0
     Author:         Soren Greenfort Lindevang
-    Creation Date:  XX.04.2018
+    Creation Date:  16.04.2018
     Purpose/Change: Initial script development
   
 .EXAMPLE
