@@ -85,6 +85,7 @@
     Purpose/Change: - Added 'EnableVerbose' switch 
                     - Improved error handling
                     - Improved output formatting
+                    - Other fixes
 
     Version:        1.0
     Author:         Soren Greenfort Lindevang

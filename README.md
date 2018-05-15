@@ -50,7 +50,7 @@ Written by: Søren Lindevang
 
 Find me on:
 
-* My Blog: <http://soren.cloud/>
+* My Blog: <http://soren.cloud>
 * Twitter: <https://twitter.com/SorenLindevang>
 * LinkedIn: <https://www.linkedin.com/in/lindevang/>
 * GitHub: <https://github.com/soren-cloud>
