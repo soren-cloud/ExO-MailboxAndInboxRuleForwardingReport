@@ -1,5 +1,5 @@
 ﻿<#PSScriptInfo
-.VERSION 1.0.1
+.VERSION 1.0
 .GUID 4e794dab-0e07-43ed-bbd9-ec685be3421a
 .AUTHOR Soren Lindevang
 .COMPANYNAME
@@ -51,6 +51,7 @@
      
      If used, please do modify the 'SendMailReport' variables in the 'Declarations' area.
 
+
      Example 1: true
      Example 2: false
 
@@ -59,18 +60,9 @@
      
      If used, please do modify the 'SendMailReport' variables in the 'Declarations' area.
 
+
      Example 1: true
      Example 2: false
-
-.PARAMETER EnableVerbose 
-     If this switch is present, 'VerbosePreference' will be set to "Continue" in the script.
-     
-     Build-in Verbose switch is not supported by Azure Automation (yet).
-     
-     Example 1: true
-     Example 2: false
-
-     Default value = false
 
 .INPUTS
     N/A
@@ -79,16 +71,9 @@
     N/A
 
 .NOTES
-    Version:        1.0.1
-    Author:         Soren Greenfort Lindevang
-    Creation Date:  15.05.2018
-    Purpose/Change: - Added 'EnableVerbose' switch 
-                    - Improved error handling
-                    - Improved output formatting
-
     Version:        1.0
     Author:         Soren Greenfort Lindevang
-    Creation Date:  16.04.2018
+    Creation Date:  XX.04.2018
     Purpose/Change: Initial script development
   
 .EXAMPLE
@@ -110,10 +95,7 @@ param (
         [switch]$SendMailboxForwardingReport,
     [Parameter(
         Mandatory=$false)]
-        [switch]$SendInboxRuleForwardingReport,
-    [Parameter(
-        Mandatory=$false)]
-        [switch]$EnableVerbose     
+        [switch]$SendInboxRuleForwardingReport    
 )
 
 
@@ -148,7 +130,7 @@ function Connect-ExchangeOnline
     catch 
         {
         Write-Error -Message $_.Exception
-        Stop-AutomationScript -Status Failed
+        throw $_.Exception
         }
     Write-Verbose "Successfully connected to Exchange Online"
     }
@@ -164,31 +146,11 @@ function Disconnect-ExchangeOnline
     catch 
         {
         Write-Error -Message $_.Exception
-        Stop-AutomationScript -Status Failed
+        throw $_.Exception
         }
     Write-Verbose "Successfully disconnected from Exchange Online"
     }
 
-# Stop Automation Script
-function Stop-AutomationScript
-    {
-    param(
-        [ValidateSet("Failed","Success")]
-        [string]
-        $Status = "Success"
-        )
-    Write-Output ""
-    Disconnect-ExchangeOnline
-    if ($Status -eq "Success")
-        {
-        Write-Output "Script successfully completed"
-        }
-    elseif ($Status -eq "Failed")
-        {
-        Write-Output "Script stopped with an Error"
-        }
-    Break
-    }
 
 Function Get-MailboxForwardingToExternal
     {
@@ -418,8 +380,8 @@ Function Get-InboxRuleForwardingToExternal
 $ReportSmtpServer = "smtp.office365.com"
 $ReportSmtpPort = 587
 $ReportSmtpPSCredentialName = $AutomationPSCredentialName
-$ReportSmtpFrom = "serviceaccount@domain.com"
-$ReportSmtpTo = "someone@domain.com"
+$ReportSmtpFrom = "svc-azauto-exo@soren.cloud"
+$ReportSmtpTo = "soren@lindevang.it"
 
 # SendInboxRuleForwardingReport Variables
 $SendInboxRuleForwardingReportSubject = "Report: Inbox Rules with Forwarding to External Recipients"
@@ -441,14 +403,7 @@ Write-Output "ExcludeExternalDomain:         $ExcludeExternalDomain"
 Write-Output "ExcludeExternalEmailAddress:   $ExcludeExternalEmailAddress"
 Write-Output "SendMailboxForwardingReport:   $SendMailboxForwardingReport"
 Write-Output "SendInboxRuleForwardingReport: $SendInboxRuleForwardingReport"
-Write-Output "EnableVerbose:                 $EnableVerbose"
 Write-Output ""
-
-# Handle Verbose Preference
-if ($EnableVerbose -eq $true)
-    {
-    $VerbosePreference = "Continue"
-    }
 
 # Get AutomationPSCredential
 Write-Output "::: Connection :::"
@@ -460,7 +415,7 @@ try
 catch 
     {
     Write-Error -Message $_.Exception
-    Stop-AutomationScript -Status Failed
+    throw $_.Exception
     }
 Write-Verbose "Successfully imported credentials"
 
@@ -469,7 +424,6 @@ Connect-ExchangeOnline -Credential $Credential -Commands "Get-AcceptedDomain","G
 Write-Output ""
 
 # Import Accepted Domains
-Write-Verbose ":::Import Accepted Domains:::"
 try
     {
     Write-Verbose "Importing List of Accepted Domains"
@@ -478,7 +432,7 @@ try
 catch 
     {
     Write-Error -Message $_.Exception
-    Stop-AutomationScript -Status Failed
+    throw $_.Exception
     }
 Write-Verbose "Successfully Imported List of Accepted Domains"
 
@@ -492,20 +446,17 @@ try
 catch 
     {
     Write-Error -Message $_.Exception
-    Stop-AutomationScript -Status Failed
+    throw $_.Exception
     }
+Write-Verbose "Successfully Imported List of Mailboxes"
 
 if (!$Mailboxes)
     {
     $ErrorMessage = "No Mailboxes Found!"
-    Stop-AutomationScript -Status Failed
+    throw $ErrorMessage
     }
 
-Write-Verbose "Successfully Imported List of Mailboxes"
-Write-Verbose ""
-
 # Import All Recipients
-Write-Verbose "::: Import Exchange Recipient List :::"
 try
     {
     Write-Verbose "Importing List of Recipients"
@@ -515,27 +466,24 @@ try
 catch 
     {
     Write-Error -Message $_.Exception
-    Stop-AutomationScript -Status Failed
+    throw $_.Exception
     }
 Write-Verbose "Successfully Imported List of Recipients"
-Write-Verbose ""
+
 
 # Process Mailboxes
-Write-Output "::: Analyzing Mailbox Forwarding :::"
+Write-Output "::: Analyzing Mailbox Forwarding:::"
 Write-Output "Mailboxes in Scope for Search: $(($Mailboxes | Measure-Object).Count)"
 
 $MailboxForwarding = Get-MailboxForwardingToExternal -MailboxPSObject $Mailboxes -RecipientPSObject $Recipients -AcceptedDomainPSobject $AcceptedDomains `
     -ExcludeExternalEmailAddress $ExcludeExternalEmailAddress -ExcludeExternalDomain $ExcludeExternalDomain
 
 Write-Output "Mailbox Forwarding to External Recipients: $(($MailboxForwarding | Measure-Object).Count)"
-if ($MailboxForwarding)
-    {
-    Write-Output $($MailboxForwarding | fl)
-    }
+Write-Output $($MailboxForwarding | fl)
 Write-Output ""
 
 # Inbox Rules
-Write-Output "::: Analyzing Inbox Rules :::"
+Write-Output "::: Analyzing Inbox Rules:::"
 Write-Output "Mailboxes in Scope for Search: $(($Mailboxes | Measure-Object).Count)"
 
 $RulesWithForwarding = Get-InboxRuleForwardingToExternal -MailboxPSObject $Mailboxes -AcceptedDomainPSobject $AcceptedDomains `
@@ -557,7 +505,7 @@ if (($SendMailboxForwardingReport -and $MailboxForwarding) -or ($SendInboxRuleFo
     catch 
         {
         Write-Error -Message $_.Exception
-        Stop-AutomationScript -Status Failed
+        throw $_.Exception
         }
     $ReportTime = Get-Date -Format "MM-dd-yyyy_HH-mm-ss"
     if ($SendMailboxForwardingReport -and $MailboxForwarding)
@@ -611,7 +559,11 @@ if (($SendMailboxForwardingReport -and $MailboxForwarding) -or ($SendInboxRuleFo
             }
         }
     }
+Write-Output ""
 
+# Close Session
+Disconnect-ExchangeOnline
+Write-Output ""
 
 # Script Completed
-Stop-AutomationScript -Status Success
+Write-Output "Script Completed"
