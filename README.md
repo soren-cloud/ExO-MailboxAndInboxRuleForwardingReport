@@ -27,8 +27,6 @@ Copy the content of the script into a Azure Automation PowerShell Runbook. Then 
 * **-ExcludeExternalEmailAddress**, External recipient email adresses to be excluded when searching for external forwarding.
 * **-SendMailboxForwardingReport**, If this switch is present, the script sends an email with a CSV file attached, if mailbox forwarding is detected.
 * **-SendInboxRuleForwardingReport**, If this switch is present, the script sends an email with a CSV file attached, if any inbox rules are detected.
-* **-EnableVerbose**, If this switch is present, 'VerbosePreference' will be set to "Continue" in the script.
-
 
 ## Examples
 *Remember: This script is designed for execution in a Azure Automation runbook!*
@@ -42,7 +40,7 @@ Connect with service account 'Exchange Online Service Account', Exclude domain '
 Connect with service account 'Exchange Online Service Account'. Exclude domains 'domainA.com' and 'domainB.com' from the search. Also exclude addresses 'abc@domain.com' and 'xyz@domain.com'. Only send a report if Inbox Rule Forwarding is present.
 
 ## More Information
-Article: <http://soren.cloud/o365-secure-score-azure-automation-part-2-external-forwarding-report/>
+Article: <http://soren.cloud/>
 
 
 ## Credits
